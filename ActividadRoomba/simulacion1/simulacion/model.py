@@ -18,7 +18,6 @@ class RoombaModel(Model):
         """
         super().__init__()
         self.numAgents = numAgents
-        # Use OrthogonalMooreGrid which creates 'Cell' objects at each coordinate
         self.grid = OrthogonalMooreGrid((width, height), torus=False, random=self.random)
         self.running = True
         self.maxTime = maxTime
@@ -31,10 +30,8 @@ class RoombaModel(Model):
         # --- Agent Placement ---
 
         # 1. Place Charging Station at [0,0] (Start Position)
-        # Retrieve the actual Cell object at (0,0)
         start_cell = self.grid[(0, 0)]
         
-        # Create and place the Station (Agent adds itself to the cell automatically)
         ChargingStation(self, start_cell)
 
         # 2. Place Roomba Agent at [0,0]
@@ -47,7 +44,6 @@ class RoombaModel(Model):
             y = self.random.randrange(height)
             cell = self.grid[(x, y)]
 
-            # Check if cell is empty (Cell object property)
             if cell.is_empty and cell != start_cell:
                 Obstacle(self, cell)
                 obstaclesPlaced += 1
@@ -59,7 +55,6 @@ class RoombaModel(Model):
             y = self.random.randrange(height)
             cell = self.grid[(x, y)]
 
-            # Ensure no obstacles, dirt, or station are in the cell
             if cell.is_empty and cell != start_cell:
                 Dirt(self, cell)
                 dirtPlaced += 1
@@ -82,12 +77,10 @@ class RoombaModel(Model):
         """
         self.stepCount += 1
         
-        # This shuffles the order and calls the 'step' method on each agent
         self.agents.shuffle_do("step")
         
         self.datacollector.collect(self)
 
-        # Check termination conditions
         if self.countDirt() == 0 or self.stepCount >= self.maxTime:
             self.running = False
 
